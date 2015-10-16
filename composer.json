@@ -1,5 +1,5 @@
 {
-    "name": "league/cqrs-es-framework-laravel",
+    "name": "smoothphp/cqrs-es-framework-laravel",
     "description": "Laravel adapter for the SmoothPhp CQRS-ES-Framework",
     "keywords": [
         "cqrs",
