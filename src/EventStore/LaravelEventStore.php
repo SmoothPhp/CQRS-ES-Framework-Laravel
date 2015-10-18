@@ -19,34 +19,30 @@ use SmoothPhp\Domain\DateTime;
  */
 final class LaravelEventStore implements EventStore
 {
-    /**
-     * @var Connection
-     */
+    /** @var Serializer */
+    private $serializer;
+
+    /** @var string */
+    private $eventStoreTableName;
+
+    /** @var Connection */
     private $db;
 
     /**
-     * @var SerializerInterface
-     */
-    private $payloadSerializer;
-
-    /**
-     * @var SerializerInterface
-     */
-    private $metadataSerializer;
-
-    /**
      * @param DatabaseManager $databaseManager
-     * @param Serializer $payloadSerializer
-     * @param Serializer $metadataSerializer
+     * @param Serializer $serializer
+     * @param string $eventStoreConnectionName
+     * @param string $eventStoreTableName
      */
     public function __construct(
         DatabaseManager $databaseManager,
-        Serializer $payloadSerializer,
-        Serializer $metadataSerializer
+        Serializer $serializer,
+        $eventStoreConnectionName,
+        $eventStoreTableName
     ) {
-        $this->db = $databaseManager;
-        $this->payloadSerializer = $payloadSerializer;
-        $this->metadataSerializer = $metadataSerializer;
+        $this->db = $databaseManager->connection($eventStoreConnectionName);
+        $this->serializer = $serializer;
+        $this->eventStoreTableName = $eventStoreTableName;
     }
 
     /**
@@ -56,7 +52,7 @@ final class LaravelEventStore implements EventStore
      */
     public function load($id)
     {
-        $rows = $this->db->connection('eventstore')->table('eventstore')
+        $rows = $this->db->table($this->eventStoreTableName)
                          ->select(['uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
                          ->where('uuid', $id)
                          ->orderBy('playhead', 'asc')
@@ -86,7 +82,7 @@ final class LaravelEventStore implements EventStore
 
         try {
             foreach ($eventStream as $domainMessage) {
-                $this->insertEvent($this->db, $domainMessage);
+                $this->insertEvent( $domainMessage);
             }
 
             $this->db->commit();
@@ -98,20 +94,17 @@ final class LaravelEventStore implements EventStore
     }
 
     /**
-     * @param DatabaseManager $db
      * @param DomainMessage $domainMessage
      */
-    private function insertEvent(DatabaseManager $db, DomainMessage $domainMessage)
+    private function insertEvent(DomainMessage $domainMessage)
     {
-
-        $db->connection('eventstore')
-           ->table('eventstore')
+        $this->db->table($this->eventStoreTableName)
            ->insert(
                [
                    'uuid'        => (string)$domainMessage->getId(),
                    'playhead'    => $domainMessage->getPlayHead(),
-                   'metadata'    => json_encode($this->metadataSerializer->serialize($domainMessage->getMetadata())),
-                   'payload'     => json_encode($this->payloadSerializer->serialize($domainMessage->getPayload())),
+                   'metadata'    => json_encode($this->serializer->serialize($domainMessage->getMetadata())),
+                   'payload'     => json_encode($this->serializer->serialize($domainMessage->getPayload())),
                    'recorded_on' => (string)$domainMessage->getRecordedOn(),
                    'type'        => $domainMessage->getType(),
                ]
@@ -127,8 +120,8 @@ final class LaravelEventStore implements EventStore
         return new \SmoothPhp\Domain\DomainMessage(
             $row->uuid,
             $row->playhead,
-            $this->metadataSerializer->deserialize(json_decode($row->metadata, true)),
-            $this->payloadSerializer->deserialize(json_decode($row->payload, true)),
+            $this->serializer->deserialize(json_decode($row->metadata, true)),
+            $this->serializer->deserialize(json_decode($row->payload, true)),
             new DateTime($row->recorded_on)
         );
     }

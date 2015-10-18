@@ -106,9 +106,8 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
                 function (Application $application) {
                     return new LaravelEventStore($application->make(DatabaseManager::class),
                                                  $application->make(Serializer::class),
-                                                 $application->make(Serializer::class),
                                                  $application['config']->get('cqrses.eventstore_connection'),
-                                                 $application['config']->get('cqrses.eventstore_connection')
+                                                 $application['config']->get('cqrses.eventstore_table')
                     );
                 }
             );
