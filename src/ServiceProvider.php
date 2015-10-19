@@ -11,6 +11,7 @@ use SmoothPhp\Contracts\EventDispatcher\EventDispatcher;
 use SmoothPhp\Contracts\EventStore\EventStore;
 use SmoothPhp\Contracts\Serialization\Serializer;
 use SmoothPhp\LaravelAdapter\CommandBus\LaravelCommandBusHandlerResolver;
+use SmoothPhp\LaravelAdapter\Console\BuildLaravelEventStore;
 use SmoothPhp\LaravelAdapter\EventStore\LaravelEventStore;
 
 /**
@@ -34,8 +35,6 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $app = $this->app;
 
-
-
         $this->registerCommandBus($app);
 
         $this->registerSerializer($app);
@@ -43,6 +42,9 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->registerEventDispatcher($app);
         $this->registerEventBus($app);
+
+        $this->commands([BuildLaravelEventStore::class]);
+
     }
 
     public function boot()
