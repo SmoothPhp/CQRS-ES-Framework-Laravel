@@ -57,7 +57,8 @@ return [
    | https://github.com/SmoothPhp/CQRS-ES-Framework/tree/master/src/EventDispatcher
    |
    */
-    'event_dispatcher' => \SmoothPhp\EventDispatcher\ProjectEnabledDispatcher::class,
+    'event_dispatcher'           => \SmoothPhp\EventDispatcher\ProjectEnabledDispatcher::class,
+
     /*
     |--------------------------------------------------------------------------
     | EventBus
@@ -71,5 +72,23 @@ return [
     'event_bus_listeners' => [
         \SmoothPhp\LaravelAdapter\EventBus\EventBusLogger::class,
         \SmoothPhp\LaravelAdapter\EventBus\PushEventsThroughQueue::class
-    ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rebuild Command
+    |--------------------------------------------------------------------------
+    |
+    | Set the commands you want to fire before and after replaying the events.
+    | Here are some sensible command to start with
+    |
+    */
+    'pre_rebuild_commands'  => [
+        'down',
+        'migrate:reset',
+        'migrate',
+    ],
+    'post_rebuild_commands' => [
+        'up'
+    ],
 ];
