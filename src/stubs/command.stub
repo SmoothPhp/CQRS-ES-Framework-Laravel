@@ -1,0 +1,9 @@
+<?php
+namespace {{namespace}};
+
+use SmoothPhp\CommandBus\BaseCommand;
+
+final class {{className}} extends BaseCommand;
+{
+
+}

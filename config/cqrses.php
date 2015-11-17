@@ -69,7 +69,7 @@ return [
     */
     'event_bus'                  => \SmoothPhp\EventBus\SimpleEventBus::class,
 
-    'event_bus_listeners' => [
+    'event_bus_listeners'   => [
         \SmoothPhp\LaravelAdapter\EventBus\EventBusLogger::class,
         \SmoothPhp\LaravelAdapter\EventBus\PushEventsThroughQueue::class
     ],
@@ -91,4 +91,15 @@ return [
     'post_rebuild_commands' => [
         'up'
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generators
+    |--------------------------------------------------------------------------
+    |
+    | Some variables to help generators to run
+    |
+    */
+    'path' => 'src',
+    'namespace' => 'CodeStand\\'
 ];

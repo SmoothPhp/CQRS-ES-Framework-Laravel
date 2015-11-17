@@ -26,7 +26,7 @@ final class RebuildProjectionsCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Build the Laravel Event Store';
+    protected $description = 'Rebuild all projection';
 
     /** @var Repository */
     private $config;

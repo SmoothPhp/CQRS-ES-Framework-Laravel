@@ -12,6 +12,11 @@ use SmoothPhp\Contracts\EventStore\EventStore;
 use SmoothPhp\Contracts\Serialization\Serializer;
 use SmoothPhp\LaravelAdapter\CommandBus\LaravelCommandBusHandlerResolver;
 use SmoothPhp\LaravelAdapter\Console\BuildLaravelEventStore;
+use SmoothPhp\LaravelAdapter\Console\Generators\MakeAggregate;
+use SmoothPhp\LaravelAdapter\Console\Generators\MakeCommand;
+use SmoothPhp\LaravelAdapter\Console\Generators\MakeCommandHandler;
+use SmoothPhp\LaravelAdapter\Console\Generators\MakeEvent;
+use SmoothPhp\LaravelAdapter\Console\Generators\ScaffoldAggregateCommand;
 use SmoothPhp\LaravelAdapter\Console\RebuildProjectionsCommand;
 use SmoothPhp\LaravelAdapter\EventStore\LaravelEventStore;
 
@@ -44,7 +49,15 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->registerEventDispatcher($app);
         $this->registerEventBus($app);
 
-        $this->commands([BuildLaravelEventStore::class, RebuildProjectionsCommand::class]);
+        $this->commands([
+                            BuildLaravelEventStore::class,
+                            RebuildProjectionsCommand::class,
+                            ScaffoldAggregateCommand::class,
+                            MakeCommand::class,
+                            MakeCommandHandler::class,
+                            MakeAggregate::class,
+                            MakeEvent::class,
+                        ]);
 
     }
 
