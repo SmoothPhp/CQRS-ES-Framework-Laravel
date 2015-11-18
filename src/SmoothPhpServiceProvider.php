@@ -28,5 +28,6 @@ abstract class SmoothPhpServiceProvider extends ServiceProvider
     /**
      * @return array
      */
-    abstract function getEventSubscribers();
+    abstract public function getEventSubscribers();
+
 }
