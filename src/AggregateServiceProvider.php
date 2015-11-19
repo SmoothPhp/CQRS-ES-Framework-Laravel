@@ -5,11 +5,14 @@ use Illuminate\Support\ServiceProvider;
 use SmoothPhp\Contracts\EventDispatcher\EventDispatcher;
 
 /**
- * Class SmoothPhpServiceProvider
+ * Class AggregateServiceProvider
+ *
+ * A helper class for registering events with ease handles the class building
+ *
  * @package SmoothPhp\LaravelAdapter
  * @author Simon Bennett <simon@bennett.im>
  */
-abstract class SmoothPhpServiceProvider extends ServiceProvider
+abstract class AggregateServiceProvider extends LaravelServiceProvider
 {
     /**
      *
