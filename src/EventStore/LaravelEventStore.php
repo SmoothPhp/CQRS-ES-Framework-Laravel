@@ -60,7 +60,11 @@ final class LaravelEventStore implements EventStore
         $events = [];
 
         foreach ($rows as $row) {
-            $events[] = $this->deserializeEvent($row);
+            try {
+                $events[] = $this->deserializeEvent($row);
+            } catch (SerializedClassDoesNotExist $e) {
+                continue;
+            }
         }
 
         if (empty($events)) {
