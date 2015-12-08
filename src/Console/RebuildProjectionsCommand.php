@@ -4,8 +4,11 @@ namespace SmoothPhp\LaravelAdapter\Console;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Logging\Log;
 use Illuminate\Database\DatabaseManager;
 use SmoothPhp\Contracts\EventDispatcher\EventDispatcher;
+use SmoothPhp\Contracts\Serialization\Serializer;
+use SmoothPhp\Serialization\Exception\SerializedClassDoesNotExist;
 
 /**
  * Class RebuildProjectionsCommand
@@ -39,19 +42,34 @@ final class RebuildProjectionsCommand extends Command
     /** @var DatabaseManager */
     private $databaseManager;
 
+    /** @var Serializer */
+    private $serializer;
+
+    /** @var Log */
+    private $logger;
+
     /**
      * BuildLaravelEventStore constructor.
      * @param Repository $config
      * @param Application $application
      * @param DatabaseManager $databaseManager
+     * @param Serializer $serializer
+     * @param Log $logger
      */
-    public function __construct(Repository $config, Application $application, DatabaseManager $databaseManager)
-    {
+    public function __construct(
+        Repository $config,
+        Application $application,
+        DatabaseManager $databaseManager,
+        Serializer $serializer,
+        Log $logger = null
+    ) {
         parent::__construct();
         $this->config = $config;
 
         $this->dispatcher = $application->make(EventDispatcher::class);
         $this->databaseManager = $databaseManager;
+        $this->serializer = $serializer;
+        $this->logger = $logger;
     }
 
     /**
@@ -84,18 +102,19 @@ final class RebuildProjectionsCommand extends Command
         $this->output->progressStart(count($allEvents));
 
         foreach ($allEvents as $eventRow) {
-            $payload = json_decode($eventRow->payload, true)['payload'];
-            $this->dispatcher->dispatch($eventRow->type,
-                                        [
-                                            (call_user_func(
-                                                [
-                                                    str_replace('.', '\\', $eventRow->type),
-                                                    'deserialize'
-                                                ],
-                                                $payload
-                                            ))
-                                        ],
-                                        true);
+            $object = [
+                'class' => str_replace('.', '\\', $eventRow->type),
+                'payload' => json_decode($eventRow->payload, true)['payload']
+            ];
+
+            try {
+                $this->dispatcher->dispatch($eventRow->type, $this->serializer->deserialize($object));
+            } catch (SerializedClassDoesNotExist $e) {
+                if ($this->logger) {
+                    $this->logger->debug("Event class does not exist: [{$object['class']}]");
+                }
+                continue;
+            }
         }
 
 
