@@ -108,7 +108,7 @@ final class RebuildProjectionsCommand extends Command
             ];
 
             try {
-                $this->dispatcher->dispatch($eventRow->type, $this->serializer->deserialize($object));
+                $this->dispatcher->dispatch($eventRow->type, [$this->serializer->deserialize($object)]);
             } catch (SerializedClassDoesNotExist $e) {
                 if ($this->logger) {
                     $this->logger->debug("Event class does not exist: [{$object['class']}]");
