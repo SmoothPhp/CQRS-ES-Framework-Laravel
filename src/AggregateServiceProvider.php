@@ -1,7 +1,7 @@
 <?php
 namespace SmoothPhp\LaravelAdapter;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use SmoothPhp\Contracts\EventDispatcher\EventDispatcher;
 
 /**
