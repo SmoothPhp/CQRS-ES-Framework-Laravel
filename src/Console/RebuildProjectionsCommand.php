@@ -4,7 +4,6 @@ namespace SmoothPhp\LaravelAdapter\Console;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Logging\Log;
 use Illuminate\Database\DatabaseManager;
 use SmoothPhp\Contracts\EventDispatcher\EventDispatcher;
 use SmoothPhp\Contracts\Serialization\Serializer;
@@ -45,8 +44,6 @@ final class RebuildProjectionsCommand extends Command
     /** @var Serializer */
     private $serializer;
 
-    /** @var Log */
-    private $logger;
 
     /**
      * BuildLaravelEventStore constructor.
@@ -54,14 +51,12 @@ final class RebuildProjectionsCommand extends Command
      * @param Application $application
      * @param DatabaseManager $databaseManager
      * @param Serializer $serializer
-     * @param Log $logger
      */
     public function __construct(
         Repository $config,
         Application $application,
         DatabaseManager $databaseManager,
-        Serializer $serializer,
-        Log $logger = null
+        Serializer $serializer
     ) {
         parent::__construct();
         $this->config = $config;
@@ -69,7 +64,6 @@ final class RebuildProjectionsCommand extends Command
         $this->dispatcher = $application->make(EventDispatcher::class);
         $this->databaseManager = $databaseManager;
         $this->serializer = $serializer;
-        $this->logger = $logger;
     }
 
     /**
@@ -79,15 +73,13 @@ final class RebuildProjectionsCommand extends Command
      */
     public function handle()
     {
-        foreach($this->config->get('cqrses.pre_rebuild_commands') as $preRebuildCommand)
-        {
+        foreach ($this->config->get('cqrses.pre_rebuild_commands') as $preRebuildCommand) {
             $this->call($preRebuildCommand);
         }
 
         $this->replayEvents();
 
-        foreach($this->config->get('cqrses.post_rebuild_commands') as $postRebuildCommand)
-        {
+        foreach ($this->config->get('cqrses.post_rebuild_commands') as $postRebuildCommand) {
             $this->call($postRebuildCommand);
         }
     }
@@ -102,19 +94,20 @@ final class RebuildProjectionsCommand extends Command
         $this->output->progressStart(count($allEvents));
 
         foreach ($allEvents as $eventRow) {
-            $object = [
-                'class' => str_replace('.', '\\', $eventRow->type),
-                'payload' => json_decode($eventRow->payload, true)['payload']
-            ];
+            $payload = json_decode($eventRow->payload, true)['payload'];
+            $this->dispatcher->dispatch($eventRow->type,
+                                        [
+                                            (call_user_func(
+                                                [
+                                                    str_replace('.', '\\', $eventRow->type),
+                                                    'deserialize'
+                                                ],
+                                                $payload
+                                            ))
+                                        ],
+                                        true);
 
-            try {
-                $this->dispatcher->dispatch($eventRow->type, [$this->serializer->deserialize($object)]);
-            } catch (SerializedClassDoesNotExist $e) {
-                if ($this->logger) {
-                    $this->logger->debug("Event class does not exist: [{$object['class']}]");
-                }
-                continue;
-            }
+
         }
 
 
