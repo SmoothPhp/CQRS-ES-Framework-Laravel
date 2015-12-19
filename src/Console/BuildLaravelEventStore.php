@@ -3,6 +3,7 @@ namespace SmoothPhp\LaravelAdapter\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\Schema\Blueprint;
 use Schema;
 
@@ -51,7 +52,11 @@ final class BuildLaravelEventStore extends Command
                                                                . " on connection '{$this->config->get('cqrses.eventstore_connection')}'"
                                                                . " Do you wish to continue?")
         ) {
-            return $this->buildEventStoreTable();
+            try {
+                return $this->buildEventStoreTable();
+            } catch (QueryException $ex) {
+                $this->error("Table '{$this->config->get('cqrses.eventstore_table')}' already exists");
+            }
         }
         $this->line("Stopping");
     }
