@@ -18,7 +18,7 @@ final class BuildLaravelEventStore extends Command
      *
      * @var string
      */
-    protected $signature = 'smoothphp:buildeventstore';
+    protected $signature = 'smoothphp:buildeventstore {--force=false}';
 
     /**
      * The console command description.
@@ -47,15 +47,20 @@ final class BuildLaravelEventStore extends Command
      */
     public function handle()
     {
-        if (!$this->confirm("Are you sure you want to make a new table '{$this->config->get('cqrses.eventstore_table')}'"
-                            . " on connection '{$this->config->get('cqrses.eventstore_connection')}'"
-                            . " Do you wish to continue?")
+        if ($this->option('force') == 'true' || $this->confirm("Are you sure you want to make a new table '{$this->config->get('cqrses.eventstore_table')}'"
+                                                               . " on connection '{$this->config->get('cqrses.eventstore_connection')}'"
+                                                               . " Do you wish to continue?")
         ) {
-            $this->line("Stopping");
-
-            return;
+            return $this->buildEventStoreTable();
         }
+        $this->line("Stopping");
+    }
 
+    /**
+     * Build eventstore table
+     */
+    protected function buildEventStoreTable()
+    {
         Schema::connection($this->config->get('cqrses.eventstore_connection'))
               ->create($this->config->get('cqrses.eventstore_table'),
                   function (Blueprint $table) {

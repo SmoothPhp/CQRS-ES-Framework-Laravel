@@ -101,5 +101,5 @@ return [
     |
     */
     'path' => 'src',
-    'namespace' => 'CodeStand\\'
+    'namespace' => 'App\\'
 ];
