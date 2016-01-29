@@ -74,17 +74,24 @@ final class RebuildProjectionsCommand extends Command
     public function handle()
     {
         foreach ($this->config->get('cqrses.pre_rebuild_commands') as $preRebuildCommand) {
-            $this->call($preRebuildCommand);
+            if (is_array($preRebuildCommand)) {
+                $this->call(key($preRebuildCommand), current($preRebuildCommand));
+            } else {
+                $this->call($preRebuildCommand);
+            }
         }
 
         $this->replayEvents();
 
         foreach ($this->config->get('cqrses.post_rebuild_commands') as $postRebuildCommand) {
-            $this->call($postRebuildCommand);
+            if (is_array($postRebuildCommand)) {
+                $this->call(key($postRebuildCommand), current($postRebuildCommand));
+            } else {
+                $this->call($postRebuildCommand);
+            }
         }
     }
-
-
+    
     /**
      *
      */
