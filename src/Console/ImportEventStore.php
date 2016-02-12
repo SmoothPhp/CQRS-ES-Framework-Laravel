@@ -76,6 +76,9 @@ final class ImportEventStore extends Command
 
     }
 
+    /**
+     *
+     */
     private function truncate()
     {
         $this->databaseManager
@@ -83,6 +86,4 @@ final class ImportEventStore extends Command
             ->table($this->config->get('cqrses.eventstore_table'))
             ->truncate();
     }
-
-
 }
