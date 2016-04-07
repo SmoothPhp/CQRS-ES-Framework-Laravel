@@ -106,7 +106,8 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
             $middlewareChain = [];
 
             foreach ($app['config']->get('cqrses.command_bus_middleware') as $middleware) {
-                $middlewareChain[] = $app->singleton($middleware);
+                $app->singleton($middleware);
+                $middlewareChain[] = $app->make($middleware);
             }
 
             $middlewareChain[] = new CommandHandlerMiddleWare(
