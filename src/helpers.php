@@ -10,7 +10,8 @@ if (!function_exists('wait')) {
         if (!is_array($commands)) {
             wait([$commands], $timeout);
         }
-        $i = 0;
+
+        $limit = time() + $timeout;
         if (config('app.env') == 'testing') {
             return;
         }
@@ -19,7 +20,7 @@ if (!function_exists('wait')) {
             while (!Cache::has((string)$command)) {
                 usleep(1000);
 
-                if ($i > 8000) {
+                if (time() > $limit) {
                     return;
                 }
             }
