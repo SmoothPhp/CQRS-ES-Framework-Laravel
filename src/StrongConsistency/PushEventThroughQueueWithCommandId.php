@@ -1,7 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
 namespace SmoothPhp\LaravelAdapter\StrongConsistency;
 
-use FlixPremiere\Laravel\CommandNotfication\CommandBus\NotificationsCommandBus;
 use Illuminate\Contracts\Queue\Queue;
 use SmoothPhp\Contracts\CommandBus\CommandBus;
 use SmoothPhp\Contracts\Domain\DomainMessage;
@@ -28,10 +27,13 @@ final class PushEventThroughQueueWithCommandId implements EventListener
      * PushEventsThroughQueue constructor.
      * @param Queue $queue
      * @param Serializer $serializer
-     * @param StrongConsistencyCommandBus|CommandBus $notificationsCommandBus
+     * @param StrongConsistencyCommandBusMiddleware|CommandBus $notificationsCommandBus
      */
-    public function __construct(Queue $queue, Serializer $serializer, CommandBus $notificationsCommandBus)
-    {
+    public function __construct(
+        Queue $queue,
+        Serializer $serializer,
+        StrongConsistencyCommandBusMiddleware $notificationsCommandBus
+    ) {
         $this->queue = $queue;
         $this->serializer = $serializer;
         $this->notificationsCommandBus = $notificationsCommandBus;

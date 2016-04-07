@@ -35,6 +35,10 @@ return [
      */
     'command_bus_enabled'        => true,
 
+    /**
+     * The Chain of Middleware you wish the command bus to use. Can be left black for simple resolving.
+     */
+    'command_bus_middleware'     => [],
 
     /*
     |--------------------------------------------------------------------------
@@ -100,6 +104,6 @@ return [
     | Some variables to help generators to run
     |
     */
-    'path' => 'src',
-    'namespace' => 'App\\'
+    'path'                  => 'src',
+    'namespace'             => 'App\\'
 ];

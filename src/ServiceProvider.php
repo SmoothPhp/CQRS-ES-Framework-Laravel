@@ -3,6 +3,7 @@ namespace SmoothPhp\LaravelAdapter;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
+use SmoothPhp\CommandBus\CommandHandlerMiddleWare;
 use SmoothPhp\CommandBus\SimpleCommandBus;
 use SmoothPhp\CommandBus\SimpleCommandTranslator;
 use SmoothPhp\Contracts\CommandBus\CommandBus;
@@ -52,18 +53,20 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->registerEventDispatcher($app);
         $this->registerEventBus($app);
 
-        $this->commands([
-                            BuildLaravelEventStore::class,
-                            RebuildProjectionsCommand::class,
-                            ScaffoldAggregateCommand::class,
-                            EventStoreBranchSwap::class,
-                            MakeCommand::class,
-                            MakeCommandHandler::class,
-                            MakeAggregate::class,
-                            MakeEvent::class,
-                            ExportEventStore::class,
-                            ImportEventStore::class,
-                        ]);
+        $this->commands(
+            [
+                BuildLaravelEventStore::class,
+                RebuildProjectionsCommand::class,
+                ScaffoldAggregateCommand::class,
+                EventStoreBranchSwap::class,
+                MakeCommand::class,
+                MakeCommandHandler::class,
+                MakeAggregate::class,
+                MakeEvent::class,
+                ExportEventStore::class,
+                ImportEventStore::class,
+            ]
+        );
 
     }
 
@@ -100,11 +103,22 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function registerCommandBus(Application $app)
     {
         if ($app['config']->get('cqrses.command_bus_enabled')) {
-            $this->app->singleton(CommandBus::class,
-                function (Application $application) {
-                    return new SimpleCommandBus(
-                        new SimpleCommandTranslator(),
-                        $application->make(LaravelCommandBusHandlerResolver::class));
+            $middlewareChain = [];
+
+            foreach ($app['config']->get('cqrses.command_bus_middleware') as $middleware) {
+                $middlewareChain[] = $app->singleton($middleware);
+            }
+
+            $middlewareChain[] = new CommandHandlerMiddleWare(
+                new SimpleCommandTranslator(),
+                $app->make(LaravelCommandBusHandlerResolver::class)
+            );
+
+
+            $this->app->singleton(
+                CommandBus::class,
+                function () use ($middlewareChain) {
+                    return new \SmoothPhp\CommandBus\CommandBus($middlewareChain);
                 }
             );
         }
@@ -124,12 +138,14 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function registerEventStore(Application $app)
     {
         if ($app['config']->get('cqrses.laravel_eventstore_enabled')) {
-            $app->bind(EventStore::class,
+            $app->bind(
+                EventStore::class,
                 function (Application $application) {
-                    return new LaravelEventStore($application->make(DatabaseManager::class),
-                                                 $application->make(Serializer::class),
-                                                 $application['config']->get('cqrses.eventstore_connection'),
-                                                 $application['config']->get('cqrses.eventstore_table')
+                    return new LaravelEventStore(
+                        $application->make(DatabaseManager::class),
+                        $application->make(Serializer::class),
+                        $application['config']->get('cqrses.eventstore_connection'),
+                        $application['config']->get('cqrses.eventstore_table')
                     );
                 }
             );
@@ -141,7 +157,8 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function registerEventBus(Application $app)
     {
-        $app->singleton(EventBus::class,
+        $app->singleton(
+            EventBus::class,
             function (Application $application) {
                 $eventBus = $application->make($application['config']->get('cqrses.event_bus'));
 
@@ -159,7 +176,8 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function registerEventDispatcher(Application $app)
     {
-        $app->singleton(EventDispatcher::class,
+        $app->singleton(
+            EventDispatcher::class,
             function (Application $application) {
                 return $application->make($application['config']->get('cqrses.event_dispatcher'), [false]);
             }
