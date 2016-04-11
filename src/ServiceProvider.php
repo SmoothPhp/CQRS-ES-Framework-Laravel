@@ -180,7 +180,7 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $app->singleton(
             EventDispatcher::class,
             function (Application $application) {
-                return $application->make($application['config']->get('cqrses.event_dispatcher'), [false]);
+                return $application->make($application['config']->get('cqrses.event_dispatcher'));
             }
         );
     }
