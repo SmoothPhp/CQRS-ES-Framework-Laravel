@@ -91,44 +91,75 @@ final class RebuildProjectionsCommand extends Command
             }
         }
     }
-    
+
     /**
      *
      */
     protected function replayEvents()
     {
-        $allEvents = $this->getAllEvents();
-        $this->output->progressStart(count($allEvents));
+        $eventCount = $this->getEventCount();
+        $start = 0;
+        $take = 1000;
+        $this->output->progressStart($eventCount);
 
-        foreach ($allEvents as $eventRow) {
-            $payload = json_decode($eventRow->payload, true)['payload'];
-            $this->dispatcher->dispatch($eventRow->type,
-                                        [
-                                            (call_user_func(
-                                                [
-                                                    str_replace('.', '\\', $eventRow->type),
-                                                    'deserialize'
-                                                ],
-                                                $payload
-                                            ))
-                                        ],
-                                        true);
+        while ($start < $eventCount) {
+            $this->databaseManager->connection(config('database.default'))->beginTransaction();
+            foreach ($this->getFromEventStore($start, $take) as $eventRow) {
+                $this->dispatchEvent($eventRow);
+            }
+            $this->databaseManager->connection(config('database.default'))->commit();
 
-
+            $start += $take;
+            $this->output->progressAdvance($take);
         }
-
-
         $this->output->progressFinish();
+
+        $this->output->write((memory_get_peak_usage(true) / 1024 / 1024) . " MiB", false);
     }
 
     /**
+     * @param $start
+     * @param $take
      * @return \stdClass
      */
-    private function getAllEvents()
+    private function getFromEventStore($start, $take)
     {
         return $this->databaseManager
             ->connection($this->config->get('cqrses.eventstore_connection'))
             ->table($this->config->get('cqrses.eventstore_table'))
+            ->take($take)
+            ->skip($start)
             ->get();
+    }
+
+    /**
+     * @return int
+     */
+    private function getEventCount()
+    {
+        return $this->databaseManager
+            ->connection($this->config->get('cqrses.eventstore_connection'))
+            ->table($this->config->get('cqrses.eventstore_table'))
+            ->count();
+    }
+
+    /**
+     * @param $eventRow
+     */
+    protected function dispatchEvent($eventRow)
+    {
+        $this->dispatcher->dispatch(
+            $eventRow->type,
+            [
+                (call_user_func(
+                    [
+                        str_replace('.', '\\', $eventRow->type),
+                        'deserialize'
+                    ],
+                    json_decode($eventRow->payload, true)['payload']
+                ))
+            ],
+            true
+        );
     }
 }
