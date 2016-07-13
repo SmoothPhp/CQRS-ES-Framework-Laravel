@@ -3,6 +3,7 @@ namespace SmoothPhp\LaravelAdapter;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Support\Collection;
 use SmoothPhp\CommandBus\CommandHandlerMiddleWare;
 use SmoothPhp\CommandBus\SimpleCommandBus;
 use SmoothPhp\CommandBus\SimpleCommandTranslator;
@@ -10,18 +11,15 @@ use SmoothPhp\Contracts\CommandBus\CommandBus;
 use SmoothPhp\Contracts\EventBus\EventBus;
 use SmoothPhp\Contracts\EventDispatcher\EventDispatcher;
 use SmoothPhp\Contracts\EventStore\EventStore;
+use SmoothPhp\Contracts\Projections\ProjectionServiceProvider;
 use SmoothPhp\Contracts\Serialization\Serializer;
 use SmoothPhp\LaravelAdapter\CommandBus\LaravelCommandBusHandlerResolver;
 use SmoothPhp\LaravelAdapter\Console\BuildLaravelEventStore;
 use SmoothPhp\LaravelAdapter\Console\EventStoreBranchSwap;
 use SmoothPhp\LaravelAdapter\Console\ExportEventStore;
-use SmoothPhp\LaravelAdapter\Console\Generators\MakeAggregate;
-use SmoothPhp\LaravelAdapter\Console\Generators\MakeCommand;
-use SmoothPhp\LaravelAdapter\Console\Generators\MakeCommandHandler;
-use SmoothPhp\LaravelAdapter\Console\Generators\MakeEvent;
-use SmoothPhp\LaravelAdapter\Console\Generators\ScaffoldAggregateCommand;
 use SmoothPhp\LaravelAdapter\Console\ImportEventStore;
 use SmoothPhp\LaravelAdapter\Console\RebuildProjectionsCommand;
+use SmoothPhp\LaravelAdapter\Console\RunProjectionCommand;
 use SmoothPhp\LaravelAdapter\EventStore\LaravelEventStore;
 
 /**
@@ -57,14 +55,10 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
             [
                 BuildLaravelEventStore::class,
                 RebuildProjectionsCommand::class,
-                ScaffoldAggregateCommand::class,
                 EventStoreBranchSwap::class,
-                MakeCommand::class,
-                MakeCommandHandler::class,
-                MakeAggregate::class,
-                MakeEvent::class,
                 ExportEventStore::class,
                 ImportEventStore::class,
+                RunProjectionCommand::class,
             ]
         );
 
@@ -180,10 +174,37 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $app->singleton(
             EventDispatcher::class,
             function (Application $application) {
-                return $application->make($application['config']->get('cqrses.event_dispatcher'));
+                /** @var EventDispatcher $dispatcher */
+                $dispatcher = $application->make($application['config']->get('cqrses.event_dispatcher'));
+
+                foreach ($this->getProjectionEventSubscribers($application) as $subscriber) {
+                    $dispatcher->addSubscriber($subscriber);
+                }
+
+                return $dispatcher;
             }
         );
     }
 
+    /**
+     * @param Application $app
+     * @return \SmoothPhp\Contracts\EventDispatcher\Subscriber[]|Collection
+     */
+    protected function getProjectionEventSubscribers(Application $app)
+    {
+        return collect($app['config']->get('cqrses.projections_service_providers'))->map(
+            function ($projectionsServiceProvider) use ($app) {
+                return $app->make($projectionsServiceProvider);
+            }
+        )->map(
+            function (ProjectionServiceProvider $projectServiceProvider) use ($app) {
+                return collect($projectServiceProvider->getProjections())->map(
+                    function ($projection) use ($app) {
+                        return $app->make($projection);
+                    }
+                );
+            }
+        )->collapse();
+    }
 
 }
