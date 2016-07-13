@@ -68,7 +68,7 @@ return [
     | EventBus
     |--------------------------------------------------------------------------
     |
-    | We ship with a serializer, again you are free to change it
+    | We ship with a event bus, this is needed to push events from domain to projection handlers async
     |
     */
     'event_bus'                  => \SmoothPhp\EventBus\SimpleEventBus::class,
