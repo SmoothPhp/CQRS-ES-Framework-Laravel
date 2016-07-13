@@ -89,10 +89,28 @@ return [
     */
     'pre_rebuild_commands'  => [
         'down',
-        'migrate:reset',
-        'migrate',
     ],
     'post_rebuild_commands' => [
         'up'
+    ],
+
+    /*
+   |--------------------------------------------------------------------------
+   | Projections
+   |--------------------------------------------------------------------------
+   |
+   | Register the ProjectionServiceProviders must be key=>value pair's with the key been the name
+   | eg ['members' => ACME/MembersProjectionServiceProvider::class]
+   | Must implement SmoothPhp\Contracts\Projections\ProjectionServiceProvider
+   |
+   */
+    'projections_service_providers' => [
+    ],
+
+    /**
+     * The Projection Service Providers you want registered when rebuilding, Key names from projections_service_providers
+     * e.g ['members']
+     */
+    'rebuild_projections' => [
     ],
 ];
