@@ -19,6 +19,7 @@ use SmoothPhp\LaravelAdapter\Console\EventStoreBranchSwap;
 use SmoothPhp\LaravelAdapter\Console\ExportEventStore;
 use SmoothPhp\LaravelAdapter\Console\ImportEventStore;
 use SmoothPhp\LaravelAdapter\Console\RebuildProjectionsCommand;
+use SmoothPhp\LaravelAdapter\Console\RunProjectionCommand;
 use SmoothPhp\LaravelAdapter\EventStore\LaravelEventStore;
 
 /**
@@ -57,6 +58,7 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
                 EventStoreBranchSwap::class,
                 ExportEventStore::class,
                 ImportEventStore::class,
+                RunProjectionCommand::class,
             ]
         );
 
