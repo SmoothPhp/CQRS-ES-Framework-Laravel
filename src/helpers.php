@@ -7,15 +7,15 @@ if (!function_exists('wait')) {
      */
     function wait($commands, $timeout = 8)
     {
-        if (!is_array($commands)) {
-            wait([$commands], $timeout);
-        }
-
-        $limit = time() + $timeout;
         if (config('app.env') == 'testing') {
             return;
         }
 
+        if (!is_array($commands)) {
+            return wait([$commands], $timeout);
+        }
+
+        $limit = time() + $timeout;
         foreach ($commands as $command) {
             while (!Cache::has((string)$command)) {
                 usleep(1000);

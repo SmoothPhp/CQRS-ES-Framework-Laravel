@@ -17,7 +17,7 @@ $ composer require smoothphp/cqrs-es-framework-laravel
 ```
 
 ``` php
-SmoothPHP\LaravelAdapter\ServiceProvider::class,
+SmoothPhp\LaravelAdapter\ServiceProvider::class,
 
 ```
 
