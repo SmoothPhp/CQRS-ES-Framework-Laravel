@@ -82,7 +82,7 @@ final class LaravelEventStore implements EventStore
 
         try {
             foreach ($eventStream as $domainMessage) {
-                $this->insertEvent( $domainMessage);
+                $this->insertEvent($domainMessage);
             }
 
             $this->db->commit();
@@ -99,16 +99,16 @@ final class LaravelEventStore implements EventStore
     private function insertEvent(DomainMessage $domainMessage)
     {
         $this->db->table($this->eventStoreTableName)
-           ->insert(
-               [
-                   'uuid'        => (string)$domainMessage->getId(),
-                   'playhead'    => $domainMessage->getPlayHead(),
-                   'metadata'    => json_encode($this->serializer->serialize($domainMessage->getMetadata())),
-                   'payload'     => json_encode($this->serializer->serialize($domainMessage->getPayload())),
-                   'recorded_on' => (string)$domainMessage->getRecordedOn(),
-                   'type'        => $domainMessage->getType(),
-               ]
-           );
+                 ->insert(
+                     [
+                         'uuid'        => (string)$domainMessage->getId(),
+                         'playhead'    => $domainMessage->getPlayHead(),
+                         'metadata'    => json_encode($this->serializer->serialize($domainMessage->getMetadata())),
+                         'payload'     => json_encode($this->serializer->serialize($domainMessage->getPayload())),
+                         'recorded_on' => (string)$domainMessage->getRecordedOn(),
+                         'type'        => $domainMessage->getType(),
+                     ]
+                 );
     }
 
     /**
@@ -124,5 +124,40 @@ final class LaravelEventStore implements EventStore
             $this->serializer->deserialize(json_decode($row->payload, true)),
             new DateTime($row->recorded_on)
         );
+    }
+
+    /**
+     * @param string[] $eventTypes
+     * @return int
+     */
+    public function getEventCountByTypes($eventTypes)
+    {
+        return $this->db->table($this->eventStoreTableName)
+                        ->whereIn('type', $eventTypes)
+                        ->count();
+    }
+
+    /**
+     * @param string[] $eventTypes
+     * @param int $skip
+     * @param int $take
+     * @return DomainEventStream
+     */
+    public function getEventsByType($eventTypes, $skip, $take)
+    {
+        $rows = $this->db->table($this->eventStoreTableName)
+                         ->select(['uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
+                         ->whereIn('type', $eventTypes)
+                         ->skip($skip)
+                         ->take($take)
+                         ->orderBy('recorded_on', 'asc')
+                         ->get();
+        $events = [];
+
+        foreach ($rows as $row) {
+            $events[] = $this->deserializeEvent($row);
+        }
+
+        return new \SmoothPhp\Domain\DomainEventStream($events);
     }
 }
