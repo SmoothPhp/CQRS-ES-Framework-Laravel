@@ -4,6 +4,7 @@ namespace SmoothPhp\LaravelAdapter\Console;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\DatabaseManager;
+use SmoothPhp\LaravelAdapter\Exception\EventStoreFileNotFound;
 
 /**
  * Class ImportEventStore
@@ -17,7 +18,7 @@ final class ImportEventStore extends Command
      *
      * @var string
      */
-    protected $signature = 'smoothphp:import';
+    protected $signature = 'smoothphp:import {--file= : If specified, import from a JSON file}';
 
     /**
      * The console command description.
@@ -51,16 +52,7 @@ final class ImportEventStore extends Command
      */
     public function handle()
     {
-        $fd = fopen("php://stdin", "r");
-        $eventsJson = "";
-        while (!feof($fd)) {
-            $eventsJson .= fread($fd, 1024);
-        }
-
-        fclose($fd);
-
-        $events = json_decode($eventsJson, true);
-
+        $events = json_decode(!!$this->option('file') ? $this->readFromJsonFile() : $this->readFromStdIn(), true);
 
         $this->truncate();
 
@@ -70,6 +62,7 @@ final class ImportEventStore extends Command
                 ->table($this->config->get('cqrses.eventstore_table'))
                 ->insert($event);
         }
+
         $this->call('smoothphp:rebuild');
 
         return $this->line('Success');
@@ -77,7 +70,7 @@ final class ImportEventStore extends Command
     }
 
     /**
-     *
+     *  Truncate (empty) event store table
      */
     private function truncate()
     {
@@ -85,5 +78,37 @@ final class ImportEventStore extends Command
             ->connection($this->config->get('cqrses.eventstore_connection'))
             ->table($this->config->get('cqrses.eventstore_table'))
             ->truncate();
+    }
+
+    /**
+     * Read event store JSON from std in
+     *
+     * @return string
+     */
+    private function readFromStdIn()
+    {
+        $fd = fopen("php://stdin", "r");
+        $eventsJson = "";
+        while (!feof($fd)) {
+            $eventsJson .= fread($fd, 1024);
+        }
+
+        fclose($fd);
+
+        return $eventsJson;
+    }
+
+    /**
+     * Read event store JSON from file
+     *
+     * @return string
+     */
+    private function readFromJsonFile()
+    {
+        if (!file_exists($path = $this->option('file'))) {
+            throw new EventStoreFileNotFound(sprintf('%s/%s', __DIR__, $path));
+        }
+
+        return file_get_contents($path);
     }
 }
