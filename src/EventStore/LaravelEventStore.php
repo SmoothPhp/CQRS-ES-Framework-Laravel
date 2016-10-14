@@ -11,6 +11,7 @@ use SmoothPhp\Contracts\EventStore\EventStore;
 use SmoothPhp\Contracts\EventStore\EventStreamNotFound;
 use SmoothPhp\Contracts\Serialization\Serializer;
 use SmoothPhp\Domain\DateTime;
+use SmoothPhp\EventStore\DuplicateAggregatePlayhead;
 
 /**
  * Class LaravelEventStore
@@ -98,17 +99,24 @@ final class LaravelEventStore implements EventStore
      */
     private function insertEvent(DomainMessage $domainMessage)
     {
-        $this->db->table($this->eventStoreTableName)
-                 ->insert(
-                     [
-                         'uuid'        => (string)$domainMessage->getId(),
-                         'playhead'    => $domainMessage->getPlayHead(),
-                         'metadata'    => json_encode($this->serializer->serialize($domainMessage->getMetadata())),
-                         'payload'     => json_encode($this->serializer->serialize($domainMessage->getPayload())),
-                         'recorded_on' => (string)$domainMessage->getRecordedOn(),
-                         'type'        => $domainMessage->getType(),
-                     ]
-                 );
+        try {
+            $this->db->table($this->eventStoreTableName)
+                     ->insert(
+                         [
+                             'uuid'        => (string)$domainMessage->getId(),
+                             'playhead'    => $domainMessage->getPlayHead(),
+                             'metadata'    => json_encode($this->serializer->serialize($domainMessage->getMetadata())),
+                             'payload'     => json_encode($this->serializer->serialize($domainMessage->getPayload())),
+                             'recorded_on' => (string)$domainMessage->getRecordedOn(),
+                             'type'        => $domainMessage->getType(),
+                         ]
+                     );
+        } catch (\PDOException $ex) {
+            if ($ex->getCode() == 23000) {
+                throw new DuplicateAggregatePlayhead((string)$domainMessage->getId(), $domainMessage->getPlayHead());
+            }
+            throw  $ex;
+        }
     }
 
     /**
