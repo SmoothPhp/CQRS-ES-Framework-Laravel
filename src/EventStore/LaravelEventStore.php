@@ -12,6 +12,7 @@ use SmoothPhp\Contracts\EventStore\EventStreamNotFound;
 use SmoothPhp\Contracts\Serialization\Serializer;
 use SmoothPhp\Domain\DateTime;
 use SmoothPhp\EventStore\DuplicateAggregatePlayhead;
+use SmoothPhp\EventStore\EventStreamNotFound;
 
 /**
  * Class LaravelEventStore
