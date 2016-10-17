@@ -8,7 +8,6 @@ use SmoothPhp\Contracts\Domain\DomainEventStream;
 use SmoothPhp\Contracts\Domain\DomainMessage;
 use SmoothPhp\Contracts\EventStore\DomainEventStreamInterface;
 use SmoothPhp\Contracts\EventStore\EventStore;
-use SmoothPhp\Contracts\EventStore\EventStreamNotFound;
 use SmoothPhp\Contracts\Serialization\Serializer;
 use SmoothPhp\Domain\DateTime;
 use SmoothPhp\EventStore\DuplicateAggregatePlayhead;
