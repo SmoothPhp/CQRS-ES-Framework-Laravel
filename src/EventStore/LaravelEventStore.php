@@ -108,14 +108,14 @@ final class LaravelEventStore implements EventStore
         try {
             $this->db->table($this->eventStoreTableName)->insert($eventRow);
         } catch (\PDOException $ex) {
-            if ($ex->getCode() === 23000) {
+            if ((string) $ex->getCode() === '23000') {
                 if ($ignorePlayhead) {
                     $eventRow['playhead'] ++;
                     return $this->insertEvent($eventRow, true);
                 }
                 throw new DuplicateAggregatePlayhead($eventRow['uuid'], $eventRow['playhead']);
             }
-            throw  $ex;
+            throw $ex;
         }
     }
 
