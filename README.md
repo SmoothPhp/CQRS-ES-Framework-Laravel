@@ -15,16 +15,38 @@ Via Composer
 ``` bash
 $ composer require smoothphp/cqrs-es-framework-laravel
 ```
-
+Add to `config/app.php`
 ``` php
 SmoothPhp\LaravelAdapter\ServiceProvider::class,
-
 ```
 
-## Usage Coming soon
+Run Command
+```bash
+$ php artisan vendor:publish
+```
 
+## Supervisor
+If you wish to run the smooth queue separately from other queue jobs you can config it to run on a different queue. 
+If left it will run on default queue with rest of laravel.
 
+see `config/cqrses.php`
+```php
+'queue_name' => 'default',
+```
+Change to smooth or other name. Then use the following supervisor config
 
+```bash
+[program:smoothphp-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/artisan queue:listen --queue=smooth --sleep=1
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stderr_logfile=/var/log/supervisor.log
+stdout_logfile=/var/log/supervisor.log
+```
 
 
 ## Change log
@@ -53,6 +75,13 @@ If you discover any security related issues, please email simon@bennett.im inste
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+## Support
+![https://i.imgur.com/iqFWqYD.png](https://i.imgur.com/iqFWqYD.png)
+
+SmoothPHP is a [Pixelated Crow](https://pixelatedcrow.com) Product. 
+
+For commercial support please contact smoothphp@pixelatedcrow.com
 
 [ico-version]: https://img.shields.io/packagist/v/smoothphp/cqrs-es-framework-laravel.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
