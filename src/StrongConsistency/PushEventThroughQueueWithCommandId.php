@@ -1,6 +1,7 @@
 <?php
 namespace SmoothPhp\LaravelAdapter\StrongConsistency;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Queue\Queue;
 use SmoothPhp\Contracts\CommandBus\CommandBus;
 use SmoothPhp\Contracts\Domain\DomainMessage;
@@ -22,21 +23,26 @@ final class PushEventThroughQueueWithCommandId implements EventListener
 
     /** @var NotificationsCommandBus */
     private $notificationsCommandBus;
+    /** @var Repository */
+    private $config;
 
     /**
      * PushEventsThroughQueue constructor.
      * @param Queue $queue
      * @param Serializer $serializer
      * @param StrongConsistencyCommandBusMiddleware|CommandBus $notificationsCommandBus
+     * @param Repository $config
      */
     public function __construct(
         Queue $queue,
         Serializer $serializer,
-        StrongConsistencyCommandBusMiddleware $notificationsCommandBus
+        StrongConsistencyCommandBusMiddleware $notificationsCommandBus,
+        Repository $config
     ) {
         $this->queue = $queue;
         $this->serializer = $serializer;
         $this->notificationsCommandBus = $notificationsCommandBus;
+        $this->config = $config;
     }
 
     /**
@@ -55,7 +61,8 @@ final class PushEventThroughQueueWithCommandId implements EventListener
                 'recorded_on' => (string)$domainMessage->getRecordedOn(),
                 'type'        => $domainMessage->getType(),
                 'command_id'  => $this->notificationsCommandBus->getLastCommandId(),
-            ]
+            ],
+            $this->config->get('cqrses.queue_name', 'default')
         );
     }
 }

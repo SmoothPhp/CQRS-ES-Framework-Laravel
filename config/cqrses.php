@@ -113,4 +113,12 @@ return [
      */
     'rebuild_projections' => [
     ],
+
+    /**
+     * Queue Name
+     *
+     * default will leave it on laravel default queue system but you are free to have a separated queues,
+     * Good when you require projections to be handled faster than other queue jobs like file processing and emails.
+     */
+    'queue_name' => 'default',
 ];

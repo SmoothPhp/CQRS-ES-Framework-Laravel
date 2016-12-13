@@ -74,8 +74,12 @@ final class LaravelEventStore implements EventStore
     /**
      * @param mixed $id
      * @param DomainEventStream $eventStream
+     * @param bool $ignorePlayhead
+     * @throws \PDOException
+     * @throws \SmoothPhp\EventStore\DuplicateAggregatePlayhead
+     * @throws \Illuminate\Database\QueryException
      */
-    public function append($id, DomainEventStream $eventStream)
+    public function append($id, DomainEventStream $eventStream, bool $ignorePlayhead = false)
     {
         $id = (string)$id; //Used to thrown errors if ID will not cast to string
 
@@ -83,7 +87,7 @@ final class LaravelEventStore implements EventStore
 
         try {
             foreach ($eventStream as $domainMessage) {
-                $this->insertEvent($domainMessage);
+                $this->insertEvent($this->domainMessageToArray($domainMessage), $ignorePlayhead);
             }
 
             $this->db->commit();
@@ -95,27 +99,23 @@ final class LaravelEventStore implements EventStore
     }
 
     /**
-     * @param DomainMessage $domainMessage
+     * @param array $eventRow
+     * @param bool $ignorePlayhead
+     * @throws DuplicateAggregatePlayhead
      */
-    private function insertEvent(DomainMessage $domainMessage)
+    private function insertEvent(array $eventRow, bool $ignorePlayhead)
     {
         try {
-            $this->db->table($this->eventStoreTableName)
-                     ->insert(
-                         [
-                             'uuid'        => (string)$domainMessage->getId(),
-                             'playhead'    => $domainMessage->getPlayHead(),
-                             'metadata'    => json_encode($this->serializer->serialize($domainMessage->getMetadata())),
-                             'payload'     => json_encode($this->serializer->serialize($domainMessage->getPayload())),
-                             'recorded_on' => (string)$domainMessage->getRecordedOn(),
-                             'type'        => $domainMessage->getType(),
-                         ]
-                     );
+            $this->db->table($this->eventStoreTableName)->insert($eventRow);
         } catch (\PDOException $ex) {
-            if ($ex->getCode() == 23000) {
-                throw new DuplicateAggregatePlayhead((string)$domainMessage->getId(), $domainMessage->getPlayHead());
+            if ((string) $ex->getCode() === '23000') {
+                if ($ignorePlayhead) {
+                    $eventRow['playhead'] ++;
+                    return $this->insertEvent($eventRow, true);
+                }
+                throw new DuplicateAggregatePlayhead($eventRow['uuid'], $eventRow['playhead']);
             }
-            throw  $ex;
+            throw $ex;
         }
     }
 
@@ -167,5 +167,21 @@ final class LaravelEventStore implements EventStore
         }
 
         return new \SmoothPhp\Domain\DomainEventStream($events);
+    }
+
+    /**
+     * @param DomainMessage $domainMessage
+     * @return array
+     */
+    private function domainMessageToArray(DomainMessage $domainMessage): array
+    {
+        return [
+            'uuid'        => (string)$domainMessage->getId(),
+            'playhead'    => $domainMessage->getPlayHead(),
+            'metadata'    => json_encode($this->serializer->serialize($domainMessage->getMetadata())),
+            'payload'     => json_encode($this->serializer->serialize($domainMessage->getPayload())),
+            'recorded_on' => (string)$domainMessage->getRecordedOn(),
+            'type'        => $domainMessage->getType(),
+        ];
     }
 }
