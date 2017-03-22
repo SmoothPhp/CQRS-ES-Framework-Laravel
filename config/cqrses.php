@@ -121,4 +121,10 @@ return [
      * Good when you require projections to be handled faster than other queue jobs like file processing and emails.
      */
     'queue_name' => 'default',
+
+    /**
+     * If using the queue event dispatcher system that sperates each handler in to a different queue,
+     * you can set the queue that works on here
+     */
+    'queue_name_handler' => 'default'
 ];
