@@ -126,5 +126,11 @@ return [
      * If using the queue event dispatcher system that sperates each handler in to a different queue,
      * you can set the queue that works on here
      */
-    'queue_name_handler' => 'default'
+    'queue_name_handler' => 'default',
+
+    /**
+     * Set which event dispatcher you wish to use on a rebuild. Normally when you rebuild you don't want any async process,
+     * so just use the default provided
+     */
+    'rebuild_event_dispatcher' => \SmoothPhp\EventDispatcher\ProjectEnabledDispatcher::class,
 ];
