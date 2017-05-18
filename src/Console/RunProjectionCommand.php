@@ -1,4 +1,5 @@
-<?php declare (strict_types = 1);
+<?php declare (strict_types=1);
+
 namespace SmoothPhp\LaravelAdapter\Console;
 
 use Illuminate\Console\Command;
@@ -35,9 +36,6 @@ final class RunProjectionCommand extends Command
     /** @var Repository */
     private $config;
 
-    /** @var EventDispatcher */
-    private $eventDispatcher;
-
     /** @var EventStore */
     private $eventStore;
     /** @var Application */
@@ -46,19 +44,16 @@ final class RunProjectionCommand extends Command
     /**
      * RunProjectionCommand constructor.
      * @param Repository $config
-     * @param EventDispatcher $eventDispatcher
      * @param EventStore $eventStore
      * @param Application $application
      */
     public function __construct(
         Repository $config,
-        EventDispatcher $eventDispatcher,
         EventStore $eventStore,
         Application $application
     ) {
         parent::__construct();
         $this->config = $config;
-        $this->eventDispatcher = $eventDispatcher;
         $this->eventStore = $eventStore;
         $this->application = $application;
     }
@@ -184,7 +179,12 @@ final class RunProjectionCommand extends Command
     protected function buildAndRegisterDispatcher($projections)
     {
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->application->make($this->config->get('cqrses.event_dispatcher'));
+        $dispatcher = $this->application->make(
+            $this->config->get(
+                'cqrses.rebuild_event_dispatcher',
+                $this->config->get('cqrses.event_dispatcher')
+            )
+        );
 
         $projections->each(
             function ($projection) use ($dispatcher) {
