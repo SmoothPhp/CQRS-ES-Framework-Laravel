@@ -83,6 +83,7 @@ final class LaravelEventStore implements EventStore
     {
         $id = (string)$id; //Used to thrown errors if ID will not cast to string
 
+        $this->db->reconnect();
         $this->db->beginTransaction();
 
         try {
