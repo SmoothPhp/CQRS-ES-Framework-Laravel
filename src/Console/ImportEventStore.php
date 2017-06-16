@@ -9,7 +9,7 @@ use SmoothPhp\LaravelAdapter\Exception\EventStoreFileNotFound;
 /**
  * Class ImportEventStore
  * @package SmoothPhp\LaravelAdapter\Console
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class ImportEventStore extends Command
 {

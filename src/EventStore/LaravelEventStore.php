@@ -16,7 +16,7 @@ use SmoothPhp\EventStore\EventStreamNotFound;
 /**
  * Class LaravelEventStore
  * @package SmoothPhp\LaravelAdapter\EventStore
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class LaravelEventStore implements EventStore
 {

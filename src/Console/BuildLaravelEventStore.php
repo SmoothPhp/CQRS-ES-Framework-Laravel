@@ -10,7 +10,7 @@ use Schema;
 /**
  * Class BuildLaravelEventStore
  * @package SmoothPhp\LaravelAdapter\Console
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class BuildLaravelEventStore extends Command
 {

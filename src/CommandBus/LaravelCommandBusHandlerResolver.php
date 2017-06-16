@@ -7,7 +7,7 @@ use SmoothPhp\Contracts\CommandBus\CommandHandlerResolver;
 /**
  * Class LaravelCommandBusHandlerResolver
  * @package SmoothPhp\LaravelAdapter\CommandBus
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class LaravelCommandBusHandlerResolver implements CommandHandlerResolver
 {

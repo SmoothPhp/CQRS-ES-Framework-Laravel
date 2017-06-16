@@ -25,7 +25,7 @@ use SmoothPhp\LaravelAdapter\EventStore\LaravelEventStore;
 /**
  * Class ServiceProvider
  * @package SmoothPhp\LaravelAdapter
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {

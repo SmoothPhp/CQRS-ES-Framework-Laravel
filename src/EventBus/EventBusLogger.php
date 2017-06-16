@@ -8,7 +8,7 @@ use SmoothPhp\Contracts\EventBus\EventListener;
 /**
  * Class EventBusLogger
  * @package SmoothPhp\LaravelAdapter\EventBus
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class EventBusLogger implements EventListener
 {
