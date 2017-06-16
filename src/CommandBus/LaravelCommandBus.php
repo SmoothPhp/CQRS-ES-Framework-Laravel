@@ -7,7 +7,7 @@ use SmoothPhp\Contracts\CommandBus\CommandBus;
 /**
  * Class LaravelCommandBus
  * @package SmoothPhp\LaravelAdapter\CommandBus
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class LaravelCommandBus implements CommandBus
 {

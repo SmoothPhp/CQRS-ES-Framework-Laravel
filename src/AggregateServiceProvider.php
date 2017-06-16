@@ -10,7 +10,7 @@ use SmoothPhp\Contracts\EventDispatcher\EventDispatcher;
  * A helper class for registering events with ease handles the class building
  *
  * @package SmoothPhp\LaravelAdapter
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 abstract class AggregateServiceProvider extends LaravelServiceProvider
 {

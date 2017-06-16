@@ -16,7 +16,7 @@ use SmoothPhp\EventStore\EventStreamNotFound;
 /**
  * Class LaravelEventStore
  * @package SmoothPhp\LaravelAdapter\EventStore
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class LaravelEventStore implements EventStore
 {
@@ -83,6 +83,7 @@ final class LaravelEventStore implements EventStore
     {
         $id = (string)$id; //Used to thrown errors if ID will not cast to string
 
+        $this->db->reconnect();
         $this->db->beginTransaction();
 
         try {
