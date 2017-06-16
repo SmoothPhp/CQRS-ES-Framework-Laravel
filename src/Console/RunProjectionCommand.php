@@ -15,7 +15,7 @@ use SmoothPhp\Contracts\Projections\ProjectionServiceProvider;
 /**
  * Class RunProjectionCommand
  * @package SmoothPhp\LaravelAdapter\Console
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class RunProjectionCommand extends Command
 {

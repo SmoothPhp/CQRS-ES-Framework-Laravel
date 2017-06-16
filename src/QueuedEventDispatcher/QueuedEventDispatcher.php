@@ -11,7 +11,7 @@ use SmoothPhp\Contracts\Serialization\Serializer;
 /**
  * Class QueuedEventDispatcher
  * @package SmoothPhp\LaravelAdapter\QueuedEventDispatcher
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class QueuedEventDispatcher implements EventDispatcher
 {

@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 /**
  * Class EventStoreBranchSwap
  * @package SmoothPhp\LaravelAdapter\Console
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class EventStoreBranchSwap extends Command
 {

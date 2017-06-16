@@ -8,7 +8,7 @@ use SmoothPhp\Serialization\Exception\SerializedClassDoesNotExist;
 /**
  * Class RebuildProjectionsCommand
  * @package SmoothPhp\LaravelAdapter\Console
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class RebuildProjectionsCommand extends Command
 {

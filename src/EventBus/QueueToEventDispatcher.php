@@ -7,7 +7,7 @@ use SmoothPhp\Contracts\Serialization\Serializer;
 /**
  * Class QueueToEventDispatcher
  * @package SmoothPhp\LaravelAdapter\EventBus
- * @author Simon Bennett <simon@bennett.im>
+ * @author Simon Bennett <simon@pixelatedcrow.com>
  */
 final class QueueToEventDispatcher
 {
