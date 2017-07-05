@@ -25,6 +25,10 @@ final class QueuedEventHandler
         $this->container = $container;
     }
 
+    /**
+     * @param $job
+     * @param $data
+     */
     public function fire($job, $data)
     {
         $event = call_user_func(
@@ -36,5 +40,7 @@ final class QueuedEventHandler
         );
 
         $this->container->make($data['listener_class'])->{$data['listener_method']}($event);
+
+        $job->delete();
     }
 }
