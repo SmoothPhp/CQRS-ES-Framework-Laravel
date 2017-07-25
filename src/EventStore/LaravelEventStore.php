@@ -159,8 +159,7 @@ final class LaravelEventStore implements EventStore
                          ->whereIn('type', $eventTypes)
                          ->skip($skip)
                          ->take($take)
-                         ->orderBy('recorded_on', 'asc')
-                         ->orderBy('playhead', 'asc')
+                         ->orderBy('id')
                          ->get();
         $events = [];
 
