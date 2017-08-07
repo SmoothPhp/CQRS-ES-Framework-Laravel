@@ -181,7 +181,7 @@ final class LaravelEventStore implements EventStore
             'playhead'    => $domainMessage->getPlayHead(),
             'metadata'    => json_encode($this->serializer->serialize($domainMessage->getMetadata())),
             'payload'     => json_encode($this->serializer->serialize($domainMessage->getPayload())),
-            'recorded_on' => (string)$domainMessage->getRecordedOn(),
+            'recorded_on' => $domainMessage->getRecordedOn()->format('Y-m-d H:i:s'),
             'type'        => $domainMessage->getType(),
         ];
     }
