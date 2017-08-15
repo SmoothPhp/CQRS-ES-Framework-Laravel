@@ -74,9 +74,11 @@ final class BuildLaravelEventStore extends Command
                       $table->integer('playhead')->unsigned();
                       $table->text('metadata');
                       $table->longText('payload');
-                      $table->timestamp('recorded_on', 32)->nullable()->index();
+                      $table->timestamp('recorded_on')->nullable()->index();
                       $table->string('type', 255)->index();
                       $table->unique(['uuid', 'playhead']);
+
+                      $table->index(['id','type']);
                   });
     }
 }
