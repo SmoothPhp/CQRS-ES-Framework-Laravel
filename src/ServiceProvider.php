@@ -51,16 +51,18 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->registerEventDispatcher($app);
         $this->registerEventBus($app);
 
-        $this->commands(
-            [
-                BuildLaravelEventStore::class,
-                RebuildProjectionsCommand::class,
-                EventStoreBranchSwap::class,
-                ExportEventStore::class,
-                ImportEventStore::class,
-                RunProjectionCommand::class,
-            ]
-        );
+        if ($app['config']->get('cqrses.laravel_eventstore_enabled')) {
+            $this->commands(
+                [
+                    BuildLaravelEventStore::class,
+                    RebuildProjectionsCommand::class,
+                    EventStoreBranchSwap::class,
+                    ExportEventStore::class,
+                    ImportEventStore::class,
+                    RunProjectionCommand::class,
+                ]
+            );
+        }
 
     }
 
