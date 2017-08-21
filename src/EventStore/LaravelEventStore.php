@@ -1,4 +1,5 @@
 <?php
+
 namespace SmoothPhp\LaravelAdapter\EventStore;
 
 use Illuminate\Database\Connection;
@@ -109,9 +110,10 @@ final class LaravelEventStore implements EventStore
         try {
             $this->db->table($this->eventStoreTableName)->insert($eventRow);
         } catch (\PDOException $ex) {
-            if ((string) $ex->getCode() === '23000') {
+            if ((string)$ex->getCode() === '23000') {
                 if ($ignorePlayhead) {
-                    $eventRow['playhead'] ++;
+                    $eventRow['playhead']++;
+
                     return $this->insertEvent($eventRow, true);
                 }
                 throw new DuplicateAggregatePlayhead($eventRow['uuid'], $eventRow['playhead']);
@@ -154,13 +156,26 @@ final class LaravelEventStore implements EventStore
      */
     public function getEventsByType($eventTypes, $skip, $take)
     {
-        $rows = $this->db->table($this->eventStoreTableName)
-                         ->select(['uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
-                         ->whereIn('type', $eventTypes)
-                         ->skip($skip)
-                         ->take($take)
-                         ->orderBy('id')
-                         ->get();
+        $where = "'" . collect($eventTypes)->implode("','") . "'";
+
+        $rows = $this->db->select(
+            $this->db->raw(
+                "
+                SELECT es.`id`, es.`uuid`, es.`playhead`, es.`metadata`, es.`payload`, es.`recorded_on`
+                FROM (
+                  SELECT `id`
+                  FROM {$this->eventStoreTableName}
+                  ORDER BY 
+                        id
+                  LIMIT {$skip}, {$take}
+                ) q
+                JOIN {$this->eventStoreTableName} as es
+                ON es.`id` = q.`id`
+                WHERE es.`type` IN ({$where})
+                ORDER BY es.`id` desc
+                "
+            )
+        );
         $events = [];
 
         foreach ($rows as $row) {
@@ -174,7 +189,7 @@ final class LaravelEventStore implements EventStore
      * @param DomainMessage $domainMessage
      * @return array
      */
-    private function domainMessageToArray(DomainMessage $domainMessage): array
+    private function domainMessageToArray(DomainMessage $domainMessage) : array
     {
         return [
             'uuid'        => (string)$domainMessage->getId(),
