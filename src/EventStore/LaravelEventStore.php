@@ -165,13 +165,13 @@ final class LaravelEventStore implements EventStore
                 FROM (
                   SELECT `id`
                   FROM {$this->eventStoreTableName}
+                  WHERE `type` IN ({$where})
                   ORDER BY 
                         id
                   LIMIT {$skip}, {$take}
                 ) q
                 JOIN {$this->eventStoreTableName} as es
                 ON es.`id` = q.`id`
-                WHERE es.`type` IN ({$where})
                 ORDER BY es.`id` desc
                 "
             )
