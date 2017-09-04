@@ -75,12 +75,11 @@ final class LaravelEventStore implements EventStore
     /**
      * @param mixed $id
      * @param DomainEventStream $eventStream
-     * @param bool $ignorePlayhead
      * @throws \PDOException
      * @throws \SmoothPhp\EventStore\DuplicateAggregatePlayhead
      * @throws \Illuminate\Database\QueryException
      */
-    public function append($id, DomainEventStream $eventStream, bool $ignorePlayhead = false) : void
+    public function append($id, DomainEventStream $eventStream) : void
     {
         $id = (string)$id; //Used to thrown errors if ID will not cast to string
 
@@ -89,7 +88,7 @@ final class LaravelEventStore implements EventStore
 
         try {
             foreach ($eventStream as $domainMessage) {
-                $this->insertEvent($this->domainMessageToArray($domainMessage), $ignorePlayhead);
+                $this->insertEvent($this->domainMessageToArray($domainMessage));
             }
 
             $this->db->commit();
@@ -104,18 +103,14 @@ final class LaravelEventStore implements EventStore
      * @param array $eventRow
      * @param bool $ignorePlayhead
      * @throws DuplicateAggregatePlayhead
+     * @throws \PDOException
      */
-    private function insertEvent(array $eventRow, bool $ignorePlayhead)
+    private function insertEvent(array $eventRow)
     {
         try {
             $this->db->table($this->eventStoreTableName)->insert($eventRow);
         } catch (\PDOException $ex) {
             if ((string)$ex->getCode() === '23000') {
-                if ($ignorePlayhead) {
-                    $eventRow['playhead']++;
-
-                    return $this->insertEvent($eventRow, true);
-                }
                 throw new DuplicateAggregatePlayhead($eventRow['uuid'], $eventRow['playhead'], $ex);
             }
             throw $ex;
