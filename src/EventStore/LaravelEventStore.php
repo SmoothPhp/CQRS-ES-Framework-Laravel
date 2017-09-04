@@ -116,7 +116,7 @@ final class LaravelEventStore implements EventStore
 
                     return $this->insertEvent($eventRow, true);
                 }
-                throw new DuplicateAggregatePlayhead($eventRow['uuid'], $eventRow['playhead']);
+                throw new DuplicateAggregatePlayhead($eventRow['uuid'], $eventRow['playhead'], $ex);
             }
             throw $ex;
         }
