@@ -55,7 +55,6 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
             [
                 BuildLaravelEventStore::class,
                 RebuildProjectionsCommand::class,
-                EventStoreBranchSwap::class,
                 ExportEventStore::class,
                 ImportEventStore::class,
                 RunProjectionCommand::class,
