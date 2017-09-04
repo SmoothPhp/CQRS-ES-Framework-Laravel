@@ -55,7 +55,8 @@ final class BuildLaravelEventStore extends Command
             try {
                 return $this->buildEventStoreTable();
             } catch (QueryException $ex) {
-                $this->error("Table '{$this->config->get('cqrses.eventstore_table')}' already exists");
+                $this->error("Error creating table :'{$this->config->get('cqrses.eventstore_table')}'");
+                $this->error($ex->getMessage());
             }
         }
         $this->line("Stopping");
