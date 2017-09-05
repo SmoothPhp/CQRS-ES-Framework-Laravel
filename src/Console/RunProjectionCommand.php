@@ -26,7 +26,7 @@ final class RunProjectionCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'smoothphp:project {projections}';
+    protected $signature = 'smoothphp:project {projections} {--transactions}';
 
     /**
      * The console command description.
@@ -152,11 +152,15 @@ final class RunProjectionCommand extends Command
 
         /** @var DomainEventStream $eventStream */
         foreach ($this->eventStore->getEventsByType($events, $take) as $eventStream) {
-            $this->databaseManager->connection()->beginTransaction();
+            if ($this->option('transactions')) {
+                $this->databaseManager->connection()->beginTransaction();
+            }
             foreach ($eventStream as $eventRow) {
                 $this->dispatchEvent($dispatcher, $eventRow);
             }
-            $this->databaseManager->connection()->commit();
+            if ($this->option('transactions')) {
+                $this->databaseManager->connection()->commit();
+            }
             $this->output->progressAdvance($take);
         }
 
