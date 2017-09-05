@@ -115,6 +115,11 @@ return [
     ],
 
     /**
+     * The number of events to chunk when rebuilding.
+     * The more in a chunk the generally faster you can rebuild, but the more memory you will use.
+     */
+    'rebuild_transaction_size' => 10000,
+    /**
      * Queue Name
      *
      * default will leave it on laravel default queue system but you are free to have a separated queues,
