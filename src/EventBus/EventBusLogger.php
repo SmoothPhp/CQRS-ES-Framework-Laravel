@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace SmoothPhp\LaravelAdapter\EventBus;
 
 use Illuminate\Contracts\Logging\Log;
@@ -24,12 +25,13 @@ final class EventBusLogger implements EventListener
     {
         $this->log = $log;
     }
+
     /**
      * @param DomainMessage $domainMessage
      */
     public function handle(DomainMessage $domainMessage)
     {
-        $name = explode('.',$domainMessage->getType());
+        $name = explode('.', $domainMessage->getType());
 
         $name = preg_replace('/(?!^)[A-Z]{2,}(?=[A-Z][a-z])|[A-Z][a-z]/', ' $0', end($name));
         $this->log->debug(trim(ucwords($name)) . " ({$domainMessage->getType()})");

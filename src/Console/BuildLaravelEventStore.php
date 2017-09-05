@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace SmoothPhp\LaravelAdapter\Console;
 
 use Illuminate\Console\Command;
@@ -48,14 +49,17 @@ final class BuildLaravelEventStore extends Command
      */
     public function handle()
     {
-        if ($this->option('force') == 'true' || $this->confirm("Are you sure you want to make a new table '{$this->config->get('cqrses.eventstore_table')}'"
-                                                               . " on connection '{$this->config->get('cqrses.eventstore_connection')}'"
-                                                               . " Do you wish to continue?")
+        if ($this->option('force') == 'true' || $this->confirm(
+                "Are you sure you want to make a new table '{$this->config->get('cqrses.eventstore_table')}'"
+                . " on connection '{$this->config->get('cqrses.eventstore_connection')}'"
+                . " Do you wish to continue?"
+            )
         ) {
             try {
                 return $this->buildEventStoreTable();
             } catch (QueryException $ex) {
-                $this->error("Table '{$this->config->get('cqrses.eventstore_table')}' already exists");
+                $this->error("Error creating table :'{$this->config->get('cqrses.eventstore_table')}'");
+                $this->error($ex->getMessage());
             }
         }
         $this->line("Stopping");
@@ -67,7 +71,8 @@ final class BuildLaravelEventStore extends Command
     protected function buildEventStoreTable()
     {
         Schema::connection($this->config->get('cqrses.eventstore_connection'))
-              ->create($this->config->get('cqrses.eventstore_table'),
+              ->create(
+                  $this->config->get('cqrses.eventstore_table'),
                   function (Blueprint $table) {
                       $table->increments('id');
                       $table->string('uuid', 56);
@@ -78,7 +83,8 @@ final class BuildLaravelEventStore extends Command
                       $table->string('type', 255)->index();
                       $table->unique(['uuid', 'playhead']);
 
-                      $table->index(['id','type']);
-                  });
+                      $table->index(['id', 'type']);
+                  }
+              );
     }
 }

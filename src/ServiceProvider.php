@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace SmoothPhp\LaravelAdapter;
 
 use Illuminate\Contracts\Foundation\Application;
@@ -55,7 +56,6 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
             [
                 BuildLaravelEventStore::class,
                 RebuildProjectionsCommand::class,
-                EventStoreBranchSwap::class,
                 ExportEventStore::class,
                 ImportEventStore::class,
                 RunProjectionCommand::class,

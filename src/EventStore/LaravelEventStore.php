@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace SmoothPhp\LaravelAdapter\EventStore;
 
 use Illuminate\Database\Connection;
@@ -51,7 +52,7 @@ final class LaravelEventStore implements EventStore
      * @return DomainEventStream
      * @throws EventStreamNotFound
      */
-    public function load($id)
+    public function load($id) : DomainEventStream
     {
         $rows = $this->db->table($this->eventStoreTableName)
                          ->select(['uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
@@ -74,12 +75,11 @@ final class LaravelEventStore implements EventStore
     /**
      * @param mixed $id
      * @param DomainEventStream $eventStream
-     * @param bool $ignorePlayhead
      * @throws \PDOException
      * @throws \SmoothPhp\EventStore\DuplicateAggregatePlayhead
      * @throws \Illuminate\Database\QueryException
      */
-    public function append($id, DomainEventStream $eventStream, bool $ignorePlayhead = false)
+    public function append($id, DomainEventStream $eventStream) : void
     {
         $id = (string)$id; //Used to thrown errors if ID will not cast to string
 
@@ -88,7 +88,7 @@ final class LaravelEventStore implements EventStore
 
         try {
             foreach ($eventStream as $domainMessage) {
-                $this->insertEvent($this->domainMessageToArray($domainMessage), $ignorePlayhead);
+                $this->insertEvent($this->domainMessageToArray($domainMessage));
             }
 
             $this->db->commit();
@@ -103,18 +103,15 @@ final class LaravelEventStore implements EventStore
      * @param array $eventRow
      * @param bool $ignorePlayhead
      * @throws DuplicateAggregatePlayhead
+     * @throws \PDOException
      */
-    private function insertEvent(array $eventRow, bool $ignorePlayhead)
+    private function insertEvent(array $eventRow)
     {
         try {
             $this->db->table($this->eventStoreTableName)->insert($eventRow);
         } catch (\PDOException $ex) {
-            if ((string) $ex->getCode() === '23000') {
-                if ($ignorePlayhead) {
-                    $eventRow['playhead'] ++;
-                    return $this->insertEvent($eventRow, true);
-                }
-                throw new DuplicateAggregatePlayhead($eventRow['uuid'], $eventRow['playhead']);
+            if ((string)$ex->getCode() === '23000') {
+                throw new DuplicateAggregatePlayhead($eventRow['uuid'], $eventRow['playhead'], $ex);
             }
             throw $ex;
         }
@@ -124,7 +121,7 @@ final class LaravelEventStore implements EventStore
      * @param \stdClass
      * @return DomainMessage
      */
-    private function deserializeEvent($row)
+    private function deserializeEvent($row) : DomainMessage
     {
         return new \SmoothPhp\Domain\DomainMessage(
             $row->uuid,
@@ -139,7 +136,7 @@ final class LaravelEventStore implements EventStore
      * @param string[] $eventTypes
      * @return int
      */
-    public function getEventCountByTypes($eventTypes)
+    public function getEventCountByTypes($eventTypes) : int
     {
         return $this->db->table($this->eventStoreTableName)
                         ->whereIn('type', $eventTypes)
@@ -148,33 +145,35 @@ final class LaravelEventStore implements EventStore
 
     /**
      * @param string[] $eventTypes
-     * @param int $skip
      * @param int $take
-     * @return DomainEventStream
+     * @return \Generator
      */
-    public function getEventsByType($eventTypes, $skip, $take)
+    public function getEventsByType(array $eventTypes, int $take) : \Generator
     {
-        $rows = $this->db->table($this->eventStoreTableName)
-                         ->select(['uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
-                         ->whereIn('type', $eventTypes)
-                         ->skip($skip)
-                         ->take($take)
-                         ->orderBy('id')
-                         ->get();
-        $events = [];
+        $lastId = 0;
+        do {
+            $rows = $this->db->table($this->eventStoreTableName)
+                             ->select(['id', 'uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
+                             ->whereIn('type', $eventTypes)
+                             ->where('id', '>', $lastId)
+                             ->take($take)
+                             ->orderBy('id')
+                             ->get();
+            $events = [];
+            foreach ($rows as $row) {
+                $events[] = $this->deserializeEvent($row);
+                $lastId = $row->id;
+            }
 
-        foreach ($rows as $row) {
-            $events[] = $this->deserializeEvent($row);
-        }
-
-        return new \SmoothPhp\Domain\DomainEventStream($events);
+            yield new \SmoothPhp\Domain\DomainEventStream($events);
+        } while (count($rows) > 0);
     }
 
     /**
      * @param DomainMessage $domainMessage
      * @return array
      */
-    private function domainMessageToArray(DomainMessage $domainMessage): array
+    private function domainMessageToArray(DomainMessage $domainMessage) : array
     {
         return [
             'uuid'        => (string)$domainMessage->getId(),

@@ -1,16 +1,18 @@
-<?php declare (strict_types=1);
+<?php declare(strict_types=1);
 
 namespace SmoothPhp\LaravelAdapter\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Collection;
 use SmoothPhp\Contracts\Domain\DomainMessage;
 use SmoothPhp\Contracts\EventDispatcher\EventDispatcher;
 use SmoothPhp\Contracts\EventDispatcher\Subscriber;
 use SmoothPhp\Contracts\EventStore\EventStore;
 use SmoothPhp\Contracts\Projections\ProjectionServiceProvider;
+use SmoothPhp\Domain\DomainEventStream;
 
 /**
  * Class RunProjectionCommand
@@ -40,22 +42,27 @@ final class RunProjectionCommand extends Command
     private $eventStore;
     /** @var Application */
     private $application;
+    /** @var DatabaseManager */
+    private $databaseManager;
 
     /**
      * RunProjectionCommand constructor.
      * @param Repository $config
      * @param EventStore $eventStore
      * @param Application $application
+     * @param DatabaseManager $databaseManager
      */
     public function __construct(
         Repository $config,
         EventStore $eventStore,
-        Application $application
+        Application $application,
+        DatabaseManager $databaseManager
     ) {
         parent::__construct();
         $this->config = $config;
         $this->eventStore = $eventStore;
         $this->application = $application;
+        $this->databaseManager = $databaseManager;
     }
 
     /**
@@ -112,8 +119,7 @@ final class RunProjectionCommand extends Command
             }
         );
 
-        $this->replayEvents($projections, $events);
-
+        $this->replayEvents($projections, $events->toArray());
     }
 
     /**
@@ -139,20 +145,21 @@ final class RunProjectionCommand extends Command
     protected function replayEvents($projections, $events)
     {
         $eventCount = $this->eventStore->getEventCountByTypes($events);
-        $start = 0;
-        $take = 1000;
+        $take = (int)$this->config->get('cqrses.rebuild_transaction_size', 1000);
 
         $this->output->progressStart($eventCount);
         $dispatcher = $this->buildAndRegisterDispatcher($projections);
 
-
-        while ($start < $eventCount) {
-            foreach ($this->eventStore->getEventsByType($events, $start, $take) as $eventRow) {
+        /** @var DomainEventStream $eventStream */
+        foreach ($this->eventStore->getEventsByType($events, $take) as $eventStream) {
+            $this->databaseManager->connection()->beginTransaction();
+            foreach ($eventStream as $eventRow) {
                 $this->dispatchEvent($dispatcher, $eventRow);
             }
-            $start += $take;
-            $this->output->progressAdvance($take > $eventCount ? $eventCount : $take);
+            $this->databaseManager->connection()->commit();
+            $this->output->progressAdvance($take);
         }
+
         $this->output->progressFinish();
         $this->line((memory_get_peak_usage(true) / 1024 / 1024) . "mb Peak Usage", false);
     }
@@ -166,7 +173,7 @@ final class RunProjectionCommand extends Command
         $eventDispatcher->dispatch(
             $eventRow->getType(),
             [
-                $eventRow->getPayload()
+                $eventRow->getPayload(),
             ],
             true
         );
