@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace SmoothPhp\LaravelAdapter\CommandBus;
 
 use SmoothPhp\Contracts\CommandBus\Command;
@@ -14,6 +15,7 @@ final class LaravelCommandBus implements CommandBus
     public function __construct()
     {
     }
+
     /**
      * @param Command $command
      * @return void

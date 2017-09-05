@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace SmoothPhp\LaravelAdapter;
 
 use Illuminate\Contracts\Foundation\Application;

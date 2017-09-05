@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SmoothPhp\LaravelAdapter\EventStore;
 
@@ -152,8 +152,6 @@ final class LaravelEventStore implements EventStore
     {
         $lastId = 0;
         do {
-
-
             $rows = $this->db->table($this->eventStoreTableName)
                              ->select(['id', 'uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
                              ->whereIn('type', $eventTypes)
