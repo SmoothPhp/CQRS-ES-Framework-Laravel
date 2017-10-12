@@ -59,7 +59,7 @@ final class RebuildProjectionsCommand extends Command
             'smoothphp:project',
             [
                 'projections'  => implode(',', $this->config->get('cqrses.rebuild_projections')),
-                'transactions' => $this->option('transactions'),
+                '--transactions' => $this->option('transactions'),
             ]
         );
 
