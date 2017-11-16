@@ -18,7 +18,7 @@ final class RebuildProjectionsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'smoothphp:rebuild';
+    protected $signature = 'smoothphp:rebuild {--transactions}';
 
     /**
      * The console command description.
@@ -57,7 +57,10 @@ final class RebuildProjectionsCommand extends Command
 
         $this->call(
             'smoothphp:project',
-            ['projections' => implode(',', $this->config->get('cqrses.rebuild_projections'))]
+            [
+                'projections'  => implode(',', $this->config->get('cqrses.rebuild_projections')),
+                '--transactions' => $this->option('transactions'),
+            ]
         );
 
         foreach ($this->config->get('cqrses.post_rebuild_commands') as $postRebuildCommand) {
