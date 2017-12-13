@@ -152,7 +152,7 @@ final class LaravelEventStore implements EventStore
     {
         $lastId = 0;
         do {
-            $rows = $this->db->table($this->eventStoreTableName)
+            $rows = $this->db->table($this->db->raw("`{$this->eventStoreTableName}` FORCE INDEX (eventstore_type_index)"))
                              ->select(['id', 'uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
                              ->whereIn('type', $eventTypes)
                              ->where('id', '>', $lastId)
