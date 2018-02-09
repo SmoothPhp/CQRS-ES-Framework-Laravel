@@ -14,6 +14,12 @@
       "email": "simon@bennett.im",
       "homepage": "https://smoothphp.com",
       "role": "Developer"
+    },
+    {
+      "name": "Jordan Crocker",
+      "email": "jordan@jcrocker.uk",
+      "homepage": "https://jcrocker.uk",
+      "role": "Developer"
     }
   ],
   "require": {
