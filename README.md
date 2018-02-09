@@ -2,8 +2,6 @@
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
-[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
@@ -65,11 +63,12 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details
 
 ## Security
 
-If you discover any security related issues, please email simon@bennett.im instead of using the issue tracker.
+If you discover any security related issues, please email simon@pixelatedcrow.com instead of using the issue tracker.
 
 ## Credits
 
 - [Simon Bennett][link-author]
+- [Jordan Crocker](https://github.com/jrdnrc)
 - [All Contributors][link-contributors]
 
 ## License
