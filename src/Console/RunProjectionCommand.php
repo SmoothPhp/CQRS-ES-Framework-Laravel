@@ -69,6 +69,7 @@ final class RunProjectionCommand extends Command
      * Execute the console command.
      *
      * @return mixed
+     * @throws \Exception
      */
     public function handle()
     {
@@ -127,7 +128,8 @@ final class RunProjectionCommand extends Command
      */
     public function downMigration(ProjectionServiceProvider $projectionServiceProvider)
     {
-        $this->line($projectionServiceProvider->down());
+        $response = $projectionServiceProvider->down();
+        $this->line($response ?? 'Migrated Down: ' . get_class($projectionServiceProvider));
     }
 
     /**
@@ -135,12 +137,15 @@ final class RunProjectionCommand extends Command
      */
     public function upMigration(ProjectionServiceProvider $projectionServiceProvider)
     {
-        $this->line($projectionServiceProvider->up());
+        $response = $projectionServiceProvider->up();
+        $this->line($response ?? 'Migrated Up: ' . get_class($projectionServiceProvider));
     }
 
     /**
      * @param Collection|Subscriber[]
      * @param string[] $events
+     *
+     * @throws \Exception
      */
     protected function replayEvents($projections, $events)
     {
