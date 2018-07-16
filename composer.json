@@ -24,7 +24,7 @@
   ],
   "require": {
     "php": ">=7.0.0",
-    "smoothphp/cqrs-es-framework": "~5.0",
+    "smoothphp/cqrs-es-framework": "~5.1.2",
     "laravel/framework": "^5.1"
   },
   "require-dev": {

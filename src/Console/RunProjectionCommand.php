@@ -129,7 +129,7 @@ final class RunProjectionCommand extends Command
     public function downMigration(ProjectionServiceProvider $projectionServiceProvider)
     {
         $response = $projectionServiceProvider->down();
-        $this->line($response ?? 'Migrated Down: ' . get_class($projectionServiceProvider));
+        $this->line($response ?? 'Migrated Down: ' . \get_class($projectionServiceProvider));
     }
 
     /**
@@ -138,7 +138,7 @@ final class RunProjectionCommand extends Command
     public function upMigration(ProjectionServiceProvider $projectionServiceProvider)
     {
         $response = $projectionServiceProvider->up();
-        $this->line($response ?? 'Migrated Up: ' . get_class($projectionServiceProvider));
+        $this->line($response ?? 'Migrated Up: ' . \get_class($projectionServiceProvider));
     }
 
     /**
