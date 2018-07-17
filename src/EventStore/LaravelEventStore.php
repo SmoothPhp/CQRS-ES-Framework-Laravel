@@ -52,7 +52,7 @@ final class LaravelEventStore implements EventStore
      * @return DomainEventStream
      * @throws EventStreamNotFound
      */
-    public function load($id) : DomainEventStream
+    public function load(string $id) : DomainEventStream
     {
         $rows = $this->db->table($this->eventStoreTableName)
                          ->select(['uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
@@ -73,16 +73,14 @@ final class LaravelEventStore implements EventStore
     }
 
     /**
-     * @param mixed $id
+     * @param string $id
      * @param DomainEventStream $eventStream
      * @throws \PDOException
      * @throws \SmoothPhp\EventStore\DuplicateAggregatePlayhead
      * @throws \Illuminate\Database\QueryException
      */
-    public function append($id, DomainEventStream $eventStream) : void
+    public function append(string $id, DomainEventStream $eventStream) : void
     {
-        $id = (string)$id; //Used to thrown errors if ID will not cast to string
-
         $this->db->reconnect();
         $this->db->beginTransaction();
 
@@ -101,11 +99,10 @@ final class LaravelEventStore implements EventStore
 
     /**
      * @param array $eventRow
-     * @param bool $ignorePlayhead
      * @throws DuplicateAggregatePlayhead
      * @throws \PDOException
      */
-    private function insertEvent(array $eventRow)
+    private function insertEvent(array $eventRow) : void
     {
         try {
             $this->db->table($this->eventStoreTableName)->insert($eventRow);
@@ -136,7 +133,7 @@ final class LaravelEventStore implements EventStore
      * @param string[] $eventTypes
      * @return int
      */
-    public function getEventCountByTypes($eventTypes) : int
+    public function getEventCountByTypes(array $eventTypes) : int
     {
         return $this->db->table($this->eventStoreTableName)
                         ->whereIn('type', $eventTypes)
@@ -152,7 +149,9 @@ final class LaravelEventStore implements EventStore
     {
         $lastId = 0;
         do {
-            $rows = $this->db->table($this->db->raw("`{$this->eventStoreTableName}` FORCE INDEX (eventstore_type_index)"))
+            $rows = $this->db->table(
+                $this->db->raw("`{$this->eventStoreTableName}` FORCE INDEX (eventstore_type_index)")
+            )
                              ->select(['id', 'uuid', 'playhead', 'metadata', 'payload', 'recorded_on'])
                              ->whereIn('type', $eventTypes)
                              ->where('id', '>', $lastId)
@@ -183,5 +182,15 @@ final class LaravelEventStore implements EventStore
             'recorded_on' => $domainMessage->getRecordedOn()->format('Y-m-d H:i:s'),
             'type'        => $domainMessage->getType(),
         ];
+    }
+
+    /**
+     * @param string $streamId
+     */
+    public function deleteStream(string $streamId) : void
+    {
+        $this->db->table($this->eventStoreTableName)
+                 ->where('uuid', $streamId)
+                 ->delete();
     }
 }
