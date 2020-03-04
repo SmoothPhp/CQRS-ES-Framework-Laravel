@@ -5,7 +5,7 @@ namespace SmoothPhp\LaravelAdapter\Console;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\DatabaseManager;
-use SmoothPhp\LaravelAdapter\Exception\EventStoreFileNotFound;
+use RuntimeException;
 
 /**
  * Class ImportEventStore
@@ -107,7 +107,7 @@ final class ImportEventStore extends Command
     private function readFromJsonFile()
     {
         if (!file_exists($path = $this->option('file'))) {
-            throw new EventStoreFileNotFound(sprintf('%s/%s', __DIR__, $path));
+            throw new RuntimeException(sprintf('%s/%s', __DIR__, $path));
         }
 
         return file_get_contents($path);
