@@ -24,6 +24,7 @@ final class PushEventThroughQueueWithCommandId implements EventListener
 
     /** @var NotificationsCommandBus */
     private $notificationsCommandBus;
+
     /** @var Repository */
     private $config;
 

@@ -32,7 +32,9 @@ final class QueueToEventDispatcherWithCommandId
     /**
      * @param $job
      * @param $data
+     *
      * @return mixed
+     * @throws \Exception
      */
     public function fire($job, $data)
     {

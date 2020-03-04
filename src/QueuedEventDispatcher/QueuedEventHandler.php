@@ -29,6 +29,8 @@ final class QueuedEventHandler
     /**
      * @param $job
      * @param $data
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function fire($job, $data)
     {
