@@ -6,7 +6,6 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Collection;
 use SmoothPhp\CommandBus\CommandHandlerMiddleWare;
-use SmoothPhp\CommandBus\SimpleCommandBus;
 use SmoothPhp\CommandBus\SimpleCommandTranslator;
 use SmoothPhp\Contracts\CommandBus\CommandBus;
 use SmoothPhp\Contracts\EventBus\EventBus;
@@ -16,7 +15,6 @@ use SmoothPhp\Contracts\Projections\ProjectionServiceProvider;
 use SmoothPhp\Contracts\Serialization\Serializer;
 use SmoothPhp\LaravelAdapter\CommandBus\LaravelCommandBusHandlerResolver;
 use SmoothPhp\LaravelAdapter\Console\BuildLaravelEventStore;
-use SmoothPhp\LaravelAdapter\Console\EventStoreBranchSwap;
 use SmoothPhp\LaravelAdapter\Console\ExportEventStore;
 use SmoothPhp\LaravelAdapter\Console\ImportEventStore;
 use SmoothPhp\LaravelAdapter\Console\RebuildProjectionsCommand;
@@ -93,6 +91,8 @@ final class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
     /**
      * @param Application $app
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function registerCommandBus(Application $app)
     {
