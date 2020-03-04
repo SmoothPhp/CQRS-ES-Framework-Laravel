@@ -2,7 +2,6 @@
 
 namespace SmoothPhp\LaravelAdapter\StrongConsistency;
 
-use SmoothPhp\CommandBus\SimpleCommandBus;
 use SmoothPhp\Contracts\CommandBus\Command;
 use SmoothPhp\Contracts\CommandBus\CommandBusMiddleware;
 
