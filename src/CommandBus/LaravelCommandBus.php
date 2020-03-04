@@ -18,7 +18,9 @@ final class LaravelCommandBus implements CommandBus
 
     /**
      * @param Command $command
+     *
      * @return void
+     * @throws \Exception
      */
     public function execute(Command $command)
     {

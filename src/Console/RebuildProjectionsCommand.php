@@ -70,5 +70,7 @@ final class RebuildProjectionsCommand extends Command
                 $this->call($postRebuildCommand);
             }
         }
+
+        return;
     }
 }

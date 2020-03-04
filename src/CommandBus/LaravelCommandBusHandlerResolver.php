@@ -26,7 +26,9 @@ final class LaravelCommandBusHandlerResolver implements CommandHandlerResolver
 
     /**
      * @param string $className The command handler ID
+     *
      * @return mixed                The command handler
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function make($className)
     {

@@ -190,7 +190,9 @@ final class RunProjectionCommand extends Command
 
     /**
      * @param Collection $projections
+     *
      * @return EventDispatcher
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function buildAndRegisterDispatcher($projections)
     {

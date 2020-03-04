@@ -56,7 +56,7 @@ final class ExportEventStore extends Command
     }
 
     /**
-     * @return \stdClass
+     * @return \Illuminate\Support\Collection
      */
     private function getAllEvents()
     {
