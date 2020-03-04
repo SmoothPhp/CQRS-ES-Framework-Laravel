@@ -4,7 +4,6 @@ namespace SmoothPhp\LaravelAdapter\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
-use SmoothPhp\Serialization\Exception\SerializedClassDoesNotExist;
 
 /**
  * Class RebuildProjectionsCommand
