@@ -31,6 +31,7 @@ if (!function_exists('uuid')) {
     /**
      * Generate a UUID string
      * @return string
+     * @throws Exception
      */
     function uuid()
     {
