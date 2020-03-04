@@ -7,7 +7,6 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\QueryException;
 use SmoothPhp\Contracts\Domain\DomainEventStream;
 use SmoothPhp\Contracts\Domain\DomainMessage;
-use SmoothPhp\Contracts\EventStore\DomainEventStreamInterface;
 use SmoothPhp\Contracts\EventStore\EventStore;
 use SmoothPhp\Contracts\Serialization\Serializer;
 use SmoothPhp\Domain\DateTime;
