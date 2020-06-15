@@ -74,7 +74,7 @@ final class BuildLaravelEventStore extends Command
               ->create(
                   $this->config->get('cqrses.eventstore_table'),
                   function (Blueprint $table) {
-                      $table->increments('id');
+                      $table->bigIncrements('id');
                       $table->string('uuid', 56);
                       $table->integer('playhead')->unsigned();
                       $table->text('metadata');
