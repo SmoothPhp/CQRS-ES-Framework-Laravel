@@ -17,7 +17,7 @@ final class TestHandler implements Subscriber
      */
     public function whenTestEvent(TestEvent $testEvent)
     {
-        $runCount++;
+        $this->runCount++;
     }
 
     /**

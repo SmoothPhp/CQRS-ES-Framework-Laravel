@@ -39,9 +39,7 @@ final class QueuedEventHandler
             ],
             $data['event']['payload']
         );
-
         $this->container->make($data['listener_class'])->{$data['listener_method']}($event);
-
         $job->delete();
     }
 }

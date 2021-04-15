@@ -1,0 +1,1 @@
+C:37:"PHPUnit\Runner\DefaultTestResultCache":242:{a:2:{s:7:"defects";a:1:{s:85:"Tests\EventDispatcher\PushEventThoughDispatcherQueueTest::test_pushing_event_to_queue";i:3;}s:5:"times";a:1:{s:85:"Tests\EventDispatcher\PushEventThoughDispatcherQueueTest::test_pushing_event_to_queue";d:0.011;}}}
